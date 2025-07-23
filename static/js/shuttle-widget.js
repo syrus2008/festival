@@ -60,13 +60,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const status = getTrainStatus(departure);
         const platform = departure.platform || '?';
         
-        // Formater l'heure de départ
+        // Formater les heures
         const departureTime = new Date(departure.time * 1000).toLocaleTimeString('fr-BE', { 
           hour: '2-digit', 
           minute: '2-digit' 
         });
         
-        // Formater l'heure d'arrivée
         const arrivalTime = new Date(arrival.time * 1000).toLocaleTimeString('fr-BE', { 
           hour: '2-digit', 
           minute: '2-digit' 
@@ -77,26 +76,40 @@ document.addEventListener('DOMContentLoaded', function() {
         if (status.class === 'delayed') {
           const delayedTime = new Date((parseInt(departure.time) + parseInt(departure.delay)) * 1000)
             .toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
-          delayedTimeHtml = `<span class="delayed-time">${delayedTime}</span>`;
+          delayedTimeHtml = `
+            <div class="delayed-info">
+              <span class="original-time">${departureTime}</span>
+              <span class="delayed-arrow">→</span>
+              <span class="delayed-time">${delayedTime}</span>
+            </div>`;
         }
+        
+        // Récupérer le numéro du train si disponible
+        const trainNumber = connection.departure.vehicleinfo?.shortname || '';
         
         html += `
           <li class="train-time ${status.class}">
-            <div class="train-time">
-              <span class="time">${departureTime}</span>
-              ${delayedTimeHtml}
-            </div>
-            <div>
-              <div class="train-route">
-                ${connection.direction?.name || 'Bruxelles'}
+            <div class="train-header">
+              <div class="train-number">
+                ${trainNumber ? `Train ${trainNumber}` : 'Train'}
                 <span class="train-status status-${status.class}">${status.text}</span>
               </div>
-              <div class="train-platform">
-                <span>Voie ${platform}</span>
-                <span>•</span>
-                <span>Arrivée: ${arrivalTime}</span>
+              <div class="train-platform">Voie ${platform}</div>
+            </div>
+            
+            <div class="train-route">
+              <div class="route-segment">
+                <span class="time">${departureTime}</span>
+                <span class="station">Gare de Floreffe</span>
+              </div>
+              <div class="route-arrow">↓</div>
+              <div class="route-segment">
+                <span class="time">${arrivalTime}</span>
+                <span class="station">${connection.direction?.name || 'Destination inconnue'}</span>
               </div>
             </div>
+            
+            ${delayedTimeHtml}
           </li>
         `;
       });

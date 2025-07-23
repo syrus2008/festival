@@ -417,76 +417,116 @@
 .train-route {
   font-weight: 600;
   color: #2c3e50;
-  margin-bottom: 4px;
 }
 
 .train-platform {
-  font-size: 0.85rem;
-  color: #6c757d;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.train-route {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.route-segment {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
 }
 
-.train-time {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #28a745;
-  min-width: 60px;
-  text-align: center;
+.route-segment .time {
+  font-weight: 600;
+  font-size: 1.1em;
+  min-width: 50px;
+  text-align: right;
+  color: #4caf50;
 }
 
-.train-time.delayed .time {
-  color: #ffc107;
+.route-segment .station {
+  flex-grow: 1;
+}
+
+.route-arrow {
+  color: #4caf50;
+  font-size: 1.2em;
+  margin-left: 11px;
+  opacity: 0.7;
+}
+
+.delayed-info {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 152, 0, 0.1);
+  border-radius: 4px;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delayed-arrow {
+  color: #ff9800;
+  font-size: 1.1em;
+}
+
+.original-time {
   text-decoration: line-through;
+  opacity: 0.7;
 }
 
-.train-time.delayed .delayed-time {
-  display: inline;
-  margin-left: 4px;
-}
-
-.train-time.cancelled .time {
-  color: #dc3545;
-}
-
-.train-status {
-  font-size: 0.75rem;
-  padding: 2px 6px;
-  border-radius: 10px;
-  margin-left: 8px;
+.delayed-time {
+  color: #ff9800;
   font-weight: 600;
 }
 
+.train-status {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .status-on-time {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
 }
 
 .status-delayed {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
 }
 
 .status-cancelled {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  text-decoration: line-through;
 }
 
 .loading-trains {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  color: rgba(255, 255, 255, 0.7);
   text-align: center;
-  padding: 20px;
-  color: #6c757d;
 }
 
 .loading-spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #28a745;
+  border: 3px solid rgba(76, 175, 80, 0.2);
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  border-top: 3px solid #4caf50;
+  width: 24px;
+  height: 24px;
   animation: spin 1s linear infinite;
-  margin: 0 auto 10px;
+  margin-bottom: 12px;
 }
 
 @keyframes spin {
@@ -495,13 +535,23 @@
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 10px;
-  border-radius: 4px;
-  margin: 10px 0;
-  font-size: 0.9rem;
+  color: #ff6b6b;
+  padding: 15px;
   text-align: center;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 8px;
+  margin: 15px 0;
+  border-left: 4px solid #ff6b6b;
+}
+
+.info-message {
+  color: #4caf50;
+  padding: 15px;
+  text-align: center;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 8px;
+  margin: 15px 0;
+  border-left: 4px solid #4caf50;
 }
 
 /* Style pour les écrans sombres */
