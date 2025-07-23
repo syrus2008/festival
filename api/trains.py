@@ -6,12 +6,16 @@ bp = Blueprint('trains', __name__, url_prefix='/api/trains')
 
 @bp.route('/departures')
 def get_departures():
+    from flask import request
     try:
         # Obtenir l'heure actuelle
         now = int(datetime.now().timestamp())
         
+        # Prendre la gare de départ depuis le paramètre GET, défaut Floreffe
+        from_station = request.args.get('from', 'Floreffe')
+        
         # Appeler l'API iRail
-        url = f'https://api.irail.be/connections/?from=Floreffe&to=Brussels&format=json&results=5&timesel=departure&type_depart=departure&_={now}'
+        url = f'https://api.irail.be/connections/?from={from_station}&to=Brussels&format=json&results=5&timesel=departure&type_depart=departure&_={now}'
         
         # Faire la requête avec un timeout de 5 secondes
         response = requests.get(url, timeout=5)

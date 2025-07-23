@@ -32,6 +32,8 @@ function initShuttleWidget() {
   
   // Fonction pour charger les horaires des trains
   async function loadTrainSchedule() {
+    window.currentTrainStation = 'Floreffe';
+
     const trainContent = document.getElementById('trainContent');
     if (!trainContent) return;
     
@@ -81,7 +83,7 @@ function initShuttleWidget() {
       });
       let html = '<ul class="train-schedule">';
       
-      uniqueConnections.slice(0, 5).forEach(connection => {
+      uniqueConnections.slice(0, 5).forEach((connection, idx) => {
         const departure = connection.departure;
         const arrival = connection.arrival;
         const status = getTrainStatus(departure);
@@ -114,9 +116,22 @@ function initShuttleWidget() {
         // Récupérer le numéro du train si disponible
         const trainNumber = connection.departure.vehicleinfo?.shortname || '';
         
+        // Préparer la liste des arrêts (stops)
+        let stopsHtml = '';
+        if (connection.stops && connection.stops.stop && Array.isArray(connection.stops.stop)) {
+          stopsHtml = '<ul class="stops-list">';
+          connection.stops.stop.forEach(stop => {
+            stopsHtml += `<li class="stop-station clickable-stop" data-station="${stop.station}" data-stationname="${stop.stationinfo?.name || stop.station}">
+              <span class="stop-time">${formatTime(stop.time)}</span>
+              <span class="stop-name">${stop.stationinfo?.name || stop.station}</span>
+            </li>`;
+          });
+          stopsHtml += '</ul>';
+        }
+        
         html += `
-          <li class="train-time ${status.class}">
-            <div class="train-header">
+          <li class="train-time ${status.class}" data-train-idx="${idx}">
+            <div class="train-header clickable-train">
               <div class="train-number">
                 ${trainNumber ? `Train ${trainNumber}` : 'Train'}
                 <span class="train-status status-${status.class}">${status.text}</span>
@@ -142,12 +157,51 @@ function initShuttleWidget() {
             </div>
             
             ${delayedTimeHtml}
+            <div class="train-stops-list" style="display:none;">${stopsHtml}</div>
           </li>
         `;
       });
       
       html += '</ul>';
       trainContent.innerHTML = html;
+
+      // Ajout de l'interactivité pour déplier les arrêts
+      trainContent.querySelectorAll('.clickable-train').forEach((el, idx) => {
+        el.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const trainLi = el.closest('li.train-time');
+          const stopsDiv = trainLi.querySelector('.train-stops-list');
+          if (!stopsDiv) return;
+          // Fermer les autres
+          trainContent.querySelectorAll('.train-stops-list').forEach(div => {
+            if (div !== stopsDiv) div.style.display = 'none';
+          });
+          // Toggle
+          stopsDiv.style.display = stopsDiv.style.display === 'none' ? 'block' : 'none';
+        });
+      });
+
+      // Ajout de l'interactivité sur les gares (stops)
+      trainContent.querySelectorAll('.clickable-stop').forEach(el => {
+        el.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const stationName = el.getAttribute('data-stationname');
+          if (!stationName) return;
+          // Charger les trains pour cette gare
+          loadTrainScheduleForStation(stationName);
+        });
+      });
+
+      // Bouton retour si on n'est pas à Floreffe
+      if (window.currentTrainStation && window.currentTrainStation !== 'Floreffe') {
+        const backBtn = document.createElement('button');
+        backBtn.textContent = 'Retour à Floreffe';
+        backBtn.className = 'back-to-floreffe';
+        backBtn.onclick = () => {
+          loadTrainScheduleForStation('Floreffe');
+        };
+        trainContent.prepend(backBtn);
+      }
       
     } catch (error) {
       console.error('Erreur lors du chargement des horaires:', error);
