@@ -1,4 +1,19 @@
-document.addEventListener('DOMContentLoaded', function() {
+// Vérifier si le widget est déjà chargé
+if (window.shuttleWidgetLoaded) {
+  console.warn('Le widget de navette est déjà chargé');
+} else {
+  window.shuttleWidgetLoaded = true;
+  
+  // Attendre que le DOM soit complètement chargé
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initShuttleWidget);
+  } else {
+    // Le DOM est déjà chargé, initialiser immédiatement
+    setTimeout(initShuttleWidget, 0);
+  }
+}
+
+function initShuttleWidget() {
   // ID de la gare de Floreffe (code SNCB)
   const FLOREFFE_STATION_ID = '008891309';
   
@@ -128,6 +143,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+  // Créer un conteneur isolé pour le widget
+  const widgetContainer = document.createElement('div');
+  widgetContainer.id = 'shuttle-widget-container';
+  widgetContainer.style.position = 'fixed';
+  widgetContainer.style.zIndex = '9999';
+  widgetContainer.style.bottom = '20px';
+  widgetContainer.style.right = '20px';
+  
   // Créer le HTML du widget
   const widgetHTML = `
     <div class="shuttle-widget" id="shuttleWidget">
@@ -252,8 +275,9 @@ document.addEventListener('DOMContentLoaded', function() {
     </button>
   `;
 
-  // Ajouter le widget au corps du document
-  document.body.insertAdjacentHTML('beforeend', widgetHTML);
+  // Ajouter le widget au conteneur isolé
+  widgetContainer.innerHTML = widgetHTML;
+  document.body.appendChild(widgetContainer);
 
   // Références aux éléments du DOM
   const shuttleToggle = document.getElementById('shuttleToggle');
@@ -262,9 +286,9 @@ document.addEventListener('DOMContentLoaded', function() {
   let isDragging = false;
   let offsetX, offsetY;
 
-  // Gestionnaire d'événements pour le bouton de bascule
-  // Gestionnaire d'onglets
-  function setupTabs() {
+// Gestionnaire d'onglets avec gestion des erreurs
+function setupTabs() {
+  try {
     const tabs = document.querySelectorAll('.shuttle-tab');
     const contents = document.querySelectorAll('.tab-content');
     
@@ -277,7 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Activer l'onglet cliqué
         this.classList.add('active');
         const tabId = this.getAttribute('data-tab');
-        document.getElementById(`${tabId}Content`).classList.add('active');
+        const content = document.getElementById(`${tabId}Content`);
+        if (content) content.classList.add('active');
         
         // Charger les horaires des trains si nécessaire
         if (tabId === 'train') {
@@ -285,44 +310,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
     });
-  }
-  
-  shuttleToggle.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const wasVisible = shuttleWidget.classList.contains('visible');
-    shuttleWidget.classList.toggle('visible');
-    shuttleToggle.classList.toggle('animate', false);
     
-    // Si le widget devient visible et que l'onglet train est actif, charger les horaires
-    if (!wasVisible && shuttleWidget.classList.contains('visible')) {
-      const activeTab = document.querySelector('.shuttle-tab.active');
-      if (activeTab && activeTab.getAttribute('data-tab') === 'train') {
-        loadTrainSchedule();
-      }
-      localStorage.setItem('shuttleWidgetSeen', 'true');
-    }
-  });
+    return true;
+  } catch (error) {
+    console.error('Erreur dans la configuration des onglets du widget:', error);
+    return false;
+  }
+}
 
-  // Gestionnaire d'événements pour le bouton de fermeture
-  closeButton.addEventListener('click', function(e) {
-    e.stopPropagation();
-    shuttleWidget.classList.remove('visible');
-  });
-  
-  // Initialiser les onglets
-  setupTabs();
-
-  // Fermer le widget en cliquant en dehors
-  document.addEventListener('click', function(e) {
-    if (!shuttleWidget.contains(e.target) && e.target !== shuttleToggle) {
+  // Initialiser les gestionnaires d'événements
+  function setupEventListeners() {
+    // Gestionnaire d'événements pour le bouton de fermeture
+    closeButton.addEventListener('click', function(e) {
+      e.stopPropagation();
       shuttleWidget.classList.remove('visible');
-    }
-  });
+    });
+    
+    // Fermer le widget en cliquant en dehors
+    document.addEventListener('click', function(e) {
+      if (shuttleWidget && !shuttleWidget.contains(e.target) && e.target !== shuttleToggle) {
+        shuttleWidget.classList.remove('visible');
+      }
+    });
 
-  // Empêcher la fermeture lors du clic à l'intérieur du widget
-  shuttleWidget.addEventListener('click', function(e) {
-    e.stopPropagation();
-  });
+    // Empêcher la fermeture lors du clic à l'intérieur du widget
+    if (shuttleWidget) {
+      shuttleWidget.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+  }
 
   // Faire glisser le widget
   shuttleWidget.addEventListener('mousedown', function(e) {
@@ -357,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!localStorage.getItem('shuttleWidgetSeen')) {
       shuttleToggle.classList.add('animate');
     }
-  }, 2000);
+  });
 
   // Gestion du redimensionnement de la fenêtre
   window.addEventListener('resize', function() {
@@ -368,4 +385,24 @@ document.addEventListener('DOMContentLoaded', function() {
       shuttleWidget.style.bottom = '90px';
     }
   });
-});
+  
+  // Initialiser le widget
+  try {
+    // Initialiser les onglets
+    setupTabs();
+    
+    // Initialiser les gestionnaires d'événements
+    setupEventListeners();
+    
+    // Activer l'onglet par défaut
+    const defaultTab = document.querySelector('.shuttle-tab[data-tab="shuttle"]');
+    if (defaultTab) defaultTab.click();
+    
+    // Si l'onglet train est actif, charger les horaires
+    if (document.querySelector('.shuttle-tab.active[data-tab="train"]')) {
+      loadTrainSchedule();
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'initialisation du widget:', error);
+  }
+}
