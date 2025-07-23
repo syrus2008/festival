@@ -161,23 +161,24 @@ function initShuttleWidget() {
         
         html += `
           <tr class="train-time ${status.class} clickable-train" data-train-idx="${idx}">
-            <td>
-              <span class="time">${departureTime}</span>
+            <td style="text-align:center;vertical-align:middle;">
+              <span class="time" style="font-size:1.09em;font-weight:600;">${departureTime}</span>
+              ${status.class === 'delayed' ? `<div class='train-delay-small'>${status.text}</div>` : ''}
             </td>
-            <td>
-              <span class="train-number">${trainNumber ? `Train ${trainNumber}` : 'Train'}</span>
+            <td style="vertical-align:middle;">
+              <span class="train-number" style="font-size:1em;font-weight:500;">${trainNumber ? `<span class='train-num-badge'>${trainNumber}</span>` : 'Train'}</span>
             </td>
-            <td>
-              <span class="train-platform">${platform}</span>
+            <td style="text-align:center;vertical-align:middle;">
+              <span class="train-platform" style="font-size:0.97em;">${platform}</span>
             </td>
-            <td>
-              <span class="destination-label ${destination.includes('Namur') ? 'dest-namur' : destination.includes('Charleroi') ? 'dest-charleroi' : ''}">
-                ${destination.includes('Namur') ? '🟢 ' : destination.includes('Charleroi') ? '🔵 ' : ''}${destination}
+            <td style="vertical-align:middle;">
+              <span class="destination-label badge-dest ${destination.toLowerCase().includes('wavre') ? 'dest-wavre' : destination.toLowerCase().includes('jambe') ? 'dest-jambe' : ''}">
+                ${destination.toLowerCase().includes('wavre') ? '🔵' : destination.toLowerCase().includes('jambe') ? '🟣' : ''} ${destination}
               </span>
             </td>
-            <td>
-              <span class="train-status status-${status.class}">${status.text}</span>
-              ${delayedTimeHtml}
+            <td style="text-align:center;vertical-align:middle;">
+              <span class="train-status status-${status.class}" style="font-size:0.97em;">${status.class === 'delayed' ? '' : status.text}</span>
+              ${status.class === 'delayed' ? delayedTimeHtml : ''}
             </td>
           </tr>
           <tr class="train-stops-row" style="display:none;">
