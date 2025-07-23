@@ -144,7 +144,15 @@ function initShuttleWidget() {
   }
   
   // Créer un conteneur isolé pour le widget
-  const widgetContainer = document.createElement('div');
+  let widgetContainer = document.getElementById('shuttle-widget-container');
+  
+  // Si le conteneur existe déjà, le supprimer pour éviter les doublons
+  if (widgetContainer) {
+    widgetContainer.remove();
+  }
+  
+  // Créer un nouveau conteneur
+  widgetContainer = document.createElement('div');
   widgetContainer.id = 'shuttle-widget-container';
   widgetContainer.style.position = 'fixed';
   widgetContainer.style.zIndex = '9999';
@@ -386,6 +394,18 @@ function setupTabs() {
     }
   });
   
+  // Gestionnaire d'événements pour le bouton d'ouverture du widget
+  if (shuttleToggle) {
+    shuttleToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      shuttleWidget.classList.toggle('visible');
+      
+      // Marquer comme vu pour ne plus afficher l'animation
+      localStorage.setItem('shuttleWidgetSeen', 'true');
+      shuttleToggle.classList.remove('animate');
+    });
+  }
+
   // Initialiser le widget
   try {
     // Initialiser les onglets
