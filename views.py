@@ -162,6 +162,8 @@ def get_or_create_category(category_id, new_category_name):
 @bp.route('/report', methods=['GET', 'POST'])
 @login_required
 def report_item():
+    from models import ItemPhoto
+
     lost_form = ItemForm(prefix='lost')
     found_form = ItemForm(prefix='found')
     
