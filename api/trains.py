@@ -37,6 +37,8 @@ def get_departures():
             if key not in seen:
                 seen.add(key)
                 unique_connections.append(conn)
+        # Trier les trains par heure de départ croissante
+        unique_connections.sort(key=lambda conn: int(conn.get('departure', {}).get('time', 0)))
         return jsonify({'connection': unique_connections})
         
     except requests.exceptions.RequestException as e:
