@@ -15,7 +15,7 @@ def get_departures():
         from_station = request.args.get('from', 'Floreffe')
         
         # Destinations à desservir
-        destinations = ['Namur', 'Charleroi-Central']
+        destinations = ['Jambe', 'Wavre']
         all_connections = []
         for dest in destinations:
             url = f'https://api.irail.be/connections/?from={from_station}&to={dest}&format=json&results=5&timesel=departure&type_depart=departure&_={now}'

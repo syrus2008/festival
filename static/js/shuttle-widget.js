@@ -23,10 +23,19 @@ function initShuttleWidget() {
     return date.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
   }
   
+  // Fonction pour formater le retard
+  function formatDelay(delay) {
+    if (!delay || isNaN(delay)) return '';
+    delay = parseInt(delay, 10);
+    if (delay < 60) return `${delay}s`;
+    if (delay < 3600) return `${Math.floor(delay/60)}min${delay%60 ? ' '+(delay%60)+'s' : ''}`;
+    return `${Math.floor(delay/3600)}h${Math.floor((delay%3600)/60) ? ' '+Math.floor((delay%3600)/60)+'min' : ''}`;
+  }
+  
   // Fonction pour obtenir le statut du train
   function getTrainStatus(departure) {
     if (departure.canceled === '1') return { text: 'Supprimé', class: 'cancelled' };
-    if (departure.delay && departure.delay !== '0') return { text: `+${departure.delay}'`, class: 'delayed' };
+    if (departure.delay && departure.delay !== '0') return { text: `Retard: ${formatDelay(departure.delay)}`, class: 'delayed' };
     return { text: 'À l\'heure', class: 'on-time' };
   }
   
@@ -46,14 +55,27 @@ function initShuttleWidget() {
     `;
     
     try {
-      // Utiliser la route d'API côté serveur
-      const response = await fetch('/api/trains/departures');
-      
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
+      // --- CACHE JS 2 MINUTES ---
+      const cacheKey = 'trainCache_' + (window.currentTrainStation || 'Floreffe');
+      const cache = window.localStorage.getItem(cacheKey);
+      let data = null;
+      if (cache) {
+        try {
+          const parsed = JSON.parse(cache);
+          if (parsed.timestamp && (Date.now() - parsed.timestamp) < 2*60*1000 && parsed.data) {
+            data = parsed.data;
+          }
+        } catch {}
       }
-      
-      const data = await response.json();
+      if (!data) {
+        // Utiliser la route d'API côté serveur
+        const response = await fetch('/api/trains/departures');
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        data = await response.json();
+        window.localStorage.setItem(cacheKey, JSON.stringify({timestamp: Date.now(), data}));
+      }
       
       // Vérifier s'il y a une erreur dans la réponse
       if (data.error) {
