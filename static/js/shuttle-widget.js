@@ -107,11 +107,11 @@ function initShuttleWidget() {
         <table class="train-table">
           <thead>
             <tr>
-              <th>Départ</th>
-              <th>Train</th>
-              <th>Quai</th>
-              <th>Destination</th>
-              <th>Statut</th>
+              <th style="text-align:center;width:56px">Départ</th>
+              <th style="text-align:left;width:80px">Train</th>
+              <th style="text-align:center;width:55px">Quai</th>
+              <th style="text-align:left;min-width:120px;max-width:170px;white-space:nowrap">Destination</th>
+              <th style="text-align:center;width:90px">Statut</th>
             </tr>
           </thead>
           <tbody>
