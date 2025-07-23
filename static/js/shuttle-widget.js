@@ -67,9 +67,21 @@ function initShuttleWidget() {
         return;
       }
       
+      // Filtrer les doublons : un seul par numéro de train + heure de départ
+      const seen = new Set();
+      const uniqueConnections = [];
+      data.connection.forEach(conn => {
+        const trainNum = conn.departure.vehicleinfo?.shortname || '';
+        const depTime = conn.departure.time;
+        const key = `${trainNum}_${depTime}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          uniqueConnections.push(conn);
+        }
+      });
       let html = '<ul class="train-schedule">';
       
-      data.connection.slice(0, 5).forEach(connection => {
+      uniqueConnections.slice(0, 5).forEach(connection => {
         const departure = connection.departure;
         const arrival = connection.arrival;
         const status = getTrainStatus(departure);
@@ -120,7 +132,12 @@ function initShuttleWidget() {
               <div class="route-arrow">↓</div>
               <div class="route-segment">
                 <span class="time">${arrivalTime}</span>
-                <span class="station">${connection.direction?.name || 'Destination inconnue'}</span>
+                <span class="station">${
+                  connection.arrival?.stationinfo?.name ||
+                  connection.arrival?.station ||
+                  connection.direction?.name ||
+                  'Destination inconnue'
+                }</span>
               </div>
             </div>
             
