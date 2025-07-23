@@ -9,7 +9,7 @@ from rapidfuzz import fuzz
 from datetime import datetime
 
 from app import app, db
-from .models import Item, Category, Status, ItemPhoto
+from models import Item, Category, Status, ItemPhoto
 from forms import ItemForm, ClaimForm, ConfirmReturnForm, MatchForm, LoginForm, RegisterForm, DeleteForm
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User, ActionLog, HeadphoneLoan, DepositType
