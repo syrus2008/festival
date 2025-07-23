@@ -81,24 +81,35 @@ function initShuttleWidget() {
           uniqueConnections.push(conn);
         }
       });
-      let html = '<ul class="train-schedule">';
+      let html = `
+        <table class="train-table">
+          <thead>
+            <tr>
+              <th>Départ</th>
+              <th>Train</th>
+              <th>Quai</th>
+              <th>Destination</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
       
-      uniqueConnections.slice(0, 5).forEach((connection, idx) => {
+      uniqueConnections.slice(0, 8).forEach((connection, idx) => {
         const departure = connection.departure;
         const arrival = connection.arrival;
         const status = getTrainStatus(departure);
         const platform = departure.platform || '?';
         
         // Formater les heures
-        const departureTime = new Date(departure.time * 1000).toLocaleTimeString('fr-BE', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        });
+        const departureTime = new Date(departure.time * 1000).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
+        const arrivalTime = new Date(arrival.time * 1000).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
         
-        const arrivalTime = new Date(arrival.time * 1000).toLocaleTimeString('fr-BE', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        });
+        // Destination claire
+        const destination = connection.arrival?.stationinfo?.name || connection.arrival?.station || connection.direction?.name || 'Destination inconnue';
+        
+        // Récupérer le numéro du train si disponible
+        const trainNumber = connection.departure.vehicleinfo?.shortname || '';
         
         // Calculer l'heure retardée si nécessaire
         let delayedTimeHtml = '';
@@ -112,9 +123,6 @@ function initShuttleWidget() {
               <span class="delayed-time">${delayedTime}</span>
             </div>`;
         }
-        
-        // Récupérer le numéro du train si disponible
-        const trainNumber = connection.departure.vehicleinfo?.shortname || '';
         
         // Préparer la liste des arrêts (stops)
         let stopsHtml = '';
@@ -130,39 +138,35 @@ function initShuttleWidget() {
         }
         
         html += `
-          <li class="train-time ${status.class}" data-train-idx="${idx}">
-            <div class="train-header clickable-train">
-              <div class="train-number">
-                ${trainNumber ? `Train ${trainNumber}` : 'Train'}
-                <span class="train-status status-${status.class}">${status.text}</span>
-              </div>
-              <div class="train-platform">Voie ${platform}</div>
-            </div>
-            
-            <div class="train-route">
-              <div class="route-segment">
-                <span class="time">${departureTime}</span>
-                <span class="station">Gare de Floreffe</span>
-              </div>
-              <div class="route-arrow">↓</div>
-              <div class="route-segment">
-                <span class="time">${arrivalTime}</span>
-                <span class="station">${
-                  connection.arrival?.stationinfo?.name ||
-                  connection.arrival?.station ||
-                  connection.direction?.name ||
-                  'Destination inconnue'
-                }</span>
-              </div>
-            </div>
-            
-            ${delayedTimeHtml}
-            <div class="train-stops-list" style="display:none;">${stopsHtml}</div>
-          </li>
+          <tr class="train-time ${status.class} clickable-train" data-train-idx="${idx}">
+            <td>
+              <span class="time">${departureTime}</span>
+            </td>
+            <td>
+              <span class="train-number">${trainNumber ? `Train ${trainNumber}` : 'Train'}</span>
+            </td>
+            <td>
+              <span class="train-platform">${platform}</span>
+            </td>
+            <td>
+              <span class="destination-label ${destination.includes('Namur') ? 'dest-namur' : destination.includes('Charleroi') ? 'dest-charleroi' : ''}">
+                ${destination.includes('Namur') ? '🟢 ' : destination.includes('Charleroi') ? '🔵 ' : ''}${destination}
+              </span>
+            </td>
+            <td>
+              <span class="train-status status-${status.class}">${status.text}</span>
+              ${delayedTimeHtml}
+            </td>
+          </tr>
+          <tr class="train-stops-row" style="display:none;">
+            <td colspan="5">
+              <div class="train-stops-list">${stopsHtml}</div>
+            </td>
+          </tr>
         `;
       });
       
-      html += '</ul>';
+      html += '</tbody></table>';
       trainContent.innerHTML = html;
 
       // Ajout de l'interactivité pour déplier les arrêts
