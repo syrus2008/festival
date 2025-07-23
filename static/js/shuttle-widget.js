@@ -206,6 +206,7 @@ function initShuttleWidget() {
                   <span class="arrow">⇄</span>
                   <span class="to">Camping famille</span>
                 </div>
+                <p class="shuttle-note">Départs réguliers toutes les 30 minutes</p>
               </li>
               <li class="shuttle-time">
                 <span class="time-range">18h15 - 03h00</span>
@@ -214,6 +215,7 @@ function initShuttleWidget() {
                   <span class="arrow">⇄</span>
                   <span class="to">Camping famille</span>
                 </div>
+                <p class="shuttle-note">Départs réguliers toutes les 30 minutes</p>
               </li>
             </ul>
           </li>
@@ -229,6 +231,7 @@ function initShuttleWidget() {
                   <span class="arrow">⇄</span>
                   <span class="to">Camping famille</span>
                 </div>
+                <p class="shuttle-note">Départs réguliers toutes les 30 minutes</p>
               </li>
               <li class="shuttle-time">
                 <span class="time-range">18h15 - 03h00</span>
@@ -237,6 +240,7 @@ function initShuttleWidget() {
                   <span class="arrow">⇄</span>
                   <span class="to">Camping famille</span>
                 </div>
+                <p class="shuttle-note">Départs réguliers toutes les 30 minutes</p>
               </li>
             </ul>
           </li>
@@ -252,6 +256,7 @@ function initShuttleWidget() {
                   <span class="arrow">⇄</span>
                   <span class="to">Camping famille</span>
                 </div>
+                <p class="shuttle-note">Départs réguliers toutes les 30 minutes</p>
               </li>
               <li class="shuttle-time">
                 <span class="time-range">18h15 - 03h15</span>
@@ -260,6 +265,7 @@ function initShuttleWidget() {
                   <span class="arrow">⇄</span>
                   <span class="to">Camping famille</span>
                 </div>
+                <p class="shuttle-note">Départs réguliers toutes les 30 minutes</p>
               </li>
             </ul>
           </li>
