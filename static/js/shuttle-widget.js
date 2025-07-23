@@ -161,22 +161,22 @@ function initShuttleWidget() {
         
         html += `
           <tr class="train-time ${status.class} clickable-train" data-train-idx="${idx}">
-            <td style="text-align:center;vertical-align:middle;">
+            <td data-label="Départ" style="text-align:center;vertical-align:middle;">
               <span class="time" style="font-size:1.09em;font-weight:600;">${departureTime}</span>
               ${status.class === 'delayed' ? `<div class='train-delay-small'>${status.text}</div>` : ''}
             </td>
-            <td style="vertical-align:middle;">
+            <td data-label="Train" style="vertical-align:middle;">
               <span class="train-number" style="font-size:1em;font-weight:500;">${trainNumber ? `<span class='train-num-badge'>${trainNumber}</span>` : 'Train'}</span>
             </td>
-            <td style="text-align:center;vertical-align:middle;">
+            <td data-label="Quai" style="text-align:center;vertical-align:middle;">
               <span class="train-platform" style="font-size:0.97em;">${platform}</span>
             </td>
-            <td style="vertical-align:middle;">
+            <td data-label="Destination" style="vertical-align:middle;">
               <span class="destination-label badge-dest ${destination.toLowerCase().includes('wavre') ? 'dest-wavre' : destination.toLowerCase().includes('jambe') ? 'dest-jambe' : ''}">
                 ${destination.toLowerCase().includes('wavre') ? '🔵' : destination.toLowerCase().includes('jambe') ? '🟣' : ''} ${destination}
               </span>
             </td>
-            <td style="text-align:center;vertical-align:middle;">
+            <td data-label="Statut" style="text-align:center;vertical-align:middle;">
               <span class="train-status status-${status.class}" style="font-size:0.97em;">${status.class === 'delayed' ? '' : status.text}</span>
               ${status.class === 'delayed' ? delayedTimeHtml : ''}
             </td>
