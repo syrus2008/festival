@@ -10,18 +10,20 @@
   <label class="form-label"><i class="bi bi-geo-alt"></i> {{ form.location.label.text }}</label>
   {{ form.location(class="form-control", placeholder="Lieu précis (ex : Scène B, camping…)") }}
 </div>
+{# Utilisation d'un préfixe pour chaque formulaire (lost/found) #}
+{% set prefix = prefix if prefix is defined else '' %}
 <div class="mb-3">
   <div class="form-check form-switch mb-2">
-    <input class="form-check-input" type="checkbox" id="new-category-toggle">
-    <label class="form-check-label" for="new-category-toggle">Ajouter une nouvelle catégorie</label>
+    <input class="form-check-input" type="checkbox" id="{{ prefix }}new-category-toggle">
+    <label class="form-check-label" for="{{ prefix }}new-category-toggle">Ajouter une nouvelle catégorie</label>
   </div>
   
-  <div id="existing-category-group">
+  <div id="{{ prefix }}existing-category-group">
     {{ form.category.label(class="form-label") }}
     {{ form.category(class="form-select") }}
   </div>
   
-  <div id="new-category-group" style="display: none;">
+  <div id="{{ prefix }}new-category-group" style="display: none;">
     {{ form.new_category.label(class="form-label") }}
     {{ form.new_category(
         class="form-control", 
@@ -34,13 +36,16 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const toggle = document.getElementById('new-category-toggle');
-  const existingGroup = document.getElementById('existing-category-group');
-  const newGroup = document.getElementById('new-category-group');
-  const categorySelect = document.querySelector('select[name="category"]');
-  const newCategoryInput = document.querySelector('input[name="new_category"]');
-  
-  // Gérer le basculement entre catégorie existante et nouvelle catégorie
+  // Récupère le préfixe depuis le template Jinja
+  var prefix = "{{ prefix }}";
+  const toggle = document.getElementById(prefix + 'new-category-toggle');
+  const existingGroup = document.getElementById(prefix + 'existing-category-group');
+  const newGroup = document.getElementById(prefix + 'new-category-group');
+  const categorySelect = document.querySelector('select[name="' + prefix + 'category"]');
+  const newCategoryInput = document.querySelector('input[name="' + prefix + 'new_category"]');
+
+  if (!toggle || !existingGroup || !newGroup || !categorySelect || !newCategoryInput) return;
+
   toggle.addEventListener('change', function() {
     if (this.checked) {
       existingGroup.style.display = 'none';
@@ -54,8 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
       newCategoryInput.required = false;
     }
   });
-  
-  // Si le champ de nouvelle catégorie est pré-rempli, activer le mode nouvelle catégorie
+
   if (newCategoryInput && newCategoryInput.value) {
     toggle.checked = true;
     existingGroup.style.display = 'none';

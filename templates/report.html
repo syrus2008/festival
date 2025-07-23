@@ -58,7 +58,8 @@
               <form method="post" enctype="multipart/form-data">
                 {{ found_form.hidden_tag() }}
                 {% set form = found_form %}
-                {% include '_item_form_fields.html' %}
+                {% set prefix = 'found-' %}
+                {% include '_item_form_fields.html' with context %}
                 <button type="submit" name="submit_found" class="btn btn-success">Signaler trouvé</button>
               </form>
             </div>
