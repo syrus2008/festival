@@ -39,7 +39,20 @@ def get_departures():
                 unique_connections.append(conn)
         # Trier les trains par heure de départ croissante
         unique_connections.sort(key=lambda conn: int(conn.get('departure', {}).get('time', 0)))
-        return jsonify({'connection': unique_connections})
+        # Séparer par direction
+        jambe = [c for c in unique_connections if c.get('arrival', {}).get('station', '').lower().startswith('jambe')]
+        wavre = [c for c in unique_connections if c.get('arrival', {}).get('station', '').lower().startswith('wavre')]
+        # Intercaler (alterner) les deux directions
+        alternated = []
+        i, j = 0, 0
+        while i < len(jambe) or j < len(wavre):
+            if i < len(jambe):
+                alternated.append(jambe[i])
+                i += 1
+            if j < len(wavre):
+                alternated.append(wavre[j])
+                j += 1
+        return jsonify({'connection': alternated})
         
     except requests.exceptions.RequestException as e:
         return jsonify({
