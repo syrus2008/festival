@@ -47,7 +47,8 @@
                 <li><a class="dropdown-item" href="{{ url_for('main.list_items', status='returned') }}">Objets rendus</a></li>
               </ul>
             </li>
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.list_matches') }}">Correspondances</a></li>
+            <li class="nav-item"><a class="nav-link text-success fw-bold" href="https://chat.whatsapp.com/LNrbdbxcOsGGXGvfS65RmS" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Contact WhatsApp</a></li>
+            
 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.headphone_loans') }}">Prêts de casques</a></li>
             {% if current_user.is_admin %}
               <li class="nav-item"><a class="nav-link text-danger fw-bold" href="{{ url_for('admin.admin_dashboard') }}">Admin</a></li>
@@ -115,7 +116,7 @@
 
 <footer class="footer mt-auto py-3 bg-light border-top custom-footer">
   <div class="container text-center text-muted small">
-    <span>&copy; {{ 2025 }} Lost &amp; Found Festival &mdash; <a href="mailto:contact@festival.com" class="text-decoration-none">Contact</a></span>
+    <span>&copy; {{ 2025 }} Lost &amp; Found Festival &mdash; <a href="https://chat.whatsapp.com/LNrbdbxcOsGGXGvfS65RmS" class="text-decoration-none" target="_blank" rel="noopener">Contactez-nous sur WhatsApp</a></span>
   </div>
 </footer>
 
