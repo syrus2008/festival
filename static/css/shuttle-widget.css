@@ -475,6 +475,20 @@
 }
 
 
+/* Message d'information (info-message) */
+.info-message {
+  background: #f7fafd;
+  color: #1a252f;
+  border: 1px solid #b7d6f8;
+  border-radius: 8px;
+  padding: 13px 14px;
+  margin: 12px 0 10px 0;
+  font-size: 1.05em;
+  text-align: center;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+}
+
 /* Styles pour l'onglet de train */
 .train-tab {
   background-color: #28a745;
