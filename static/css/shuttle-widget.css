@@ -426,7 +426,7 @@
     display: none;
   }
   .train-table tr.train-time {
-    background: #fff;
+    background: #fff !important;
     margin-bottom: 12px;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(44,62,80,0.07);
@@ -435,6 +435,7 @@
     flex-direction: column;
     align-items: flex-start;
     min-width: 0;
+    color: #1a252f !important;
   }
   .train-table td {
     padding: 3px 0 3px 0;
@@ -444,7 +445,9 @@
     width: 100%;
     min-width: 0;
     text-align: left !important;
+    color: #1a252f !important;
   }
+  .train-table td > span,
   .train-table td > span.train-status,
   .train-table td > span.time,
   .train-table td > span.train-number,
@@ -456,11 +459,12 @@
     vertical-align: middle;
     font-size: 1em;
     word-break: break-word;
+    color: #1a252f !important;
   }
   .train-table td:before {
     content: attr(data-label) ": ";
     font-weight: 600;
-    color: #1a252f;
+    color: #1a252f !important;
     margin-right: 5px;
     font-size: 0.97em;
     display: inline-block;
@@ -471,8 +475,10 @@
     background: #f7fafd;
     font-size: 0.97em;
     border-radius: 0 0 10px 10px;
+    color: #1a252f !important;
   }
 }
+
 
 
 /* Message d'information (info-message) */
