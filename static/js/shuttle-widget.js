@@ -1,41 +1,216 @@
 document.addEventListener('DOMContentLoaded', function() {
+  // ID de la gare de Floreffe (code SNCB)
+  const FLOREFFE_STATION_ID = '008891309';
+  
+  // Fonction pour formater l'heure
+  function formatTime(timestamp) {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
+  }
+  
+  // Fonction pour obtenir le statut du train
+  function getTrainStatus(departure) {
+    if (departure.canceled === '1') return { text: 'Supprimé', class: 'cancelled' };
+    if (departure.delay && departure.delay !== '0') return { text: `+${departure.delay}'`, class: 'delayed' };
+    return { text: 'À l\'heure', class: 'on-time' };
+  }
+  
+  // Fonction pour charger les horaires des trains
+  async function loadTrainSchedule() {
+    const now = Math.floor(Date.now() / 1000);
+    const url = `https://api.irail.be/connections/?from=Floreffe&to=Brussels&format=json&results=5&timesel=departure&type_depart=departure&_=${now}`;
+    
+    const trainContent = document.getElementById('trainContent');
+    if (!trainContent) return;
+    
+    // Afficher le chargement
+    trainContent.innerHTML = `
+      <div class="loading-trains">
+        <div class="loading-spinner"></div>
+        <div>Chargement des horaires...</div>
+      </div>
+    `;
+    
+    try {
+      const response = await fetch(`https://cors-anywhere.herokuapp.com/${url}`, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+      
+      if (!response.ok) throw new Error('Erreur réseau');
+      
+      const data = await response.json();
+      
+      if (!data.connection || data.connection.length === 0) {
+        trainContent.innerHTML = `
+          <div class="error-message">
+            Aucun train prévu pour le moment
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '<ul class="train-schedule">';
+      
+      data.connection.slice(0, 5).forEach(connection => {
+        const departure = connection.departure;
+        const arrival = connection.arrival;
+        const status = getTrainStatus(departure);
+        const platform = departure.platform || '?';
+        
+        html += `
+          <li class="train-time ${status.class}">
+            <div class="train-time">
+              <span class="time">${departure.time}</span>
+              ${status.class === 'delayed' ? `<span class="delayed-time">${departure.time + parseInt(departure.delay * 60)}</span>` : ''}
+            </div>
+            <div>
+              <div class="train-route">
+                ${connection.direction?.name || 'Destination inconnue'}
+                <span class="train-status status-${status.class}">${status.text}</span>
+              </div>
+              <div class="train-platform">
+                <span>Voie ${platform}</span>
+                <span>•</span>
+                <span>Arrivée: ${arrival.time}</span>
+              </div>
+            </div>
+          </li>
+        `;
+      });
+      
+      html += '</ul>';
+      trainContent.innerHTML = html;
+      
+    } catch (error) {
+      console.error('Erreur lors du chargement des horaires:', error);
+      trainContent.innerHTML = `
+        <div class="error-message">
+          Impossible de charger les horaires. Veuillez réessayer plus tard.
+        </div>
+      `;
+    }
+  }
+  
   // Créer le HTML du widget
   const widgetHTML = `
     <div class="shuttle-widget" id="shuttleWidget">
       <div class="shuttle-header">
-        <h3>Navettes Festival</h3>
+        <h3>🚍 Horaires des Transports</h3>
         <button class="shuttle-close" id="closeShuttle">&times;</button>
       </div>
+      
+      <div class="shuttle-tabs">
+        <button class="shuttle-tab active" data-tab="shuttle">Navettes</button>
+        <button class="shuttle-tab train-tab" data-tab="train">Trains</button>
+      </div>
       <div class="shuttle-body">
+        <!-- Contenu des navettes -->
+        <div id="shuttleContent" class="tab-content active">
+          <div class="shuttle-info">
+            <p class="shuttle-notice">Service de navettes disponible pendant le festival</p>
+          </div>
         <ul class="shuttle-schedule">
           <li class="shuttle-day">
-            <h4>Vendredi 25 juillet 2025 de 10h00 à 03h</h4>
+            <h4>📅 Vendredi 25 juillet 2025</h4>
+            <p class="shuttle-hours">Service de 10h00 à 03h00</p>
             <ul class="shuttle-times">
-              <li class="shuttle-time">De 10h à 18h ➔ Gare de Floreffe ⬌ Camping famille</li>
-              <li class="shuttle-time">De 18h15 à 03h ➔ Abbaye Entrée 2 ⬌ Camping famille</li>
+              <li class="shuttle-time">
+                <span class="time-range">10h00 - 18h00</span>
+                <div class="route">
+                  <span class="from">Gare de Floreffe</span>
+                  <span class="arrow">⇄</span>
+                  <span class="to">Camping famille</span>
+                </div>
+              </li>
+              <li class="shuttle-time">
+                <span class="time-range">18h15 - 03h00</span>
+                <div class="route">
+                  <span class="from">Abbaye (Entrée 2)</span>
+                  <span class="arrow">⇄</span>
+                  <span class="to">Camping famille</span>
+                </div>
+              </li>
             </ul>
           </li>
+          
           <li class="shuttle-day">
-            <h4>Samedi 26 juillet 2025 de 11h00 à 03h</h4>
+            <h4>📅 Samedi 26 juillet 2025</h4>
+            <p class="shuttle-hours">Service de 11h00 à 03h00</p>
             <ul class="shuttle-times">
-              <li class="shuttle-time">De 11h à 18h ➔ Gare de Floreffe ⬌ Camping famille</li>
-              <li class="shuttle-time">De 18h15 à 03h ➔ Abbaye Entrée 2 ⬌ Camping famille</li>
+              <li class="shuttle-time">
+                <span class="time-range">11h00 - 18h00</span>
+                <div class="route">
+                  <span class="from">Gare de Floreffe</span>
+                  <span class="arrow">⇄</span>
+                  <span class="to">Camping famille</span>
+                </div>
+              </li>
+              <li class="shuttle-time">
+                <span class="time-range">18h15 - 03h00</span>
+                <div class="route">
+                  <span class="from">Abbaye (Entrée 2)</span>
+                  <span class="arrow">⇄</span>
+                  <span class="to">Camping famille</span>
+                </div>
+              </li>
             </ul>
           </li>
+          
           <li class="shuttle-day">
-            <h4>Dimanche 27 juillet 2025 de 11h00 à 02h00</h4>
+            <h4>📅 Dimanche 27 juillet 2025</h4>
+            <p class="shuttle-hours">Service de 11h00 à 02h00</p>
             <ul class="shuttle-times">
-              <li class="shuttle-time">De 11h à 18h ➔ Gare de Floreffe ⬌ Camping famille</li>
-              <li class="shuttle-time">De 18h15 à 03h15 ➔ Abbaye Entrée 2 ⬌ Camping famille</li>
+              <li class="shuttle-time">
+                <span class="time-range">11h00 - 18h00</span>
+                <div class="route">
+                  <span class="from">Gare de Floreffe</span>
+                  <span class="arrow">⇄</span>
+                  <span class="to">Camping famille</span>
+                </div>
+              </li>
+              <li class="shuttle-time">
+                <span class="time-range">18h15 - 03h15</span>
+                <div class="route">
+                  <span class="from">Abbaye (Entrée 2)</span>
+                  <span class="arrow">⇄</span>
+                  <span class="to">Camping famille</span>
+                </div>
+              </li>
             </ul>
           </li>
+          
           <li class="shuttle-day">
-            <h4>Lundi 28 juillet 2025 de 08h00 à 12h00</h4>
+            <h4>📅 Lundi 28 juillet 2025</h4>
+            <p class="shuttle-hours">Service de 08h00 à 12h00</p>
             <ul class="shuttle-times">
-              <li class="shuttle-time">De 08h à 12h ➔ Camping famille ⬌ Gare de Floreffe</li>
+              <li class="shuttle-time">
+                <span class="time-range">08h00 - 12h00</span>
+                <div class="route">
+                  <span class="from">Camping famille</span>
+                  <span class="arrow">→</span>
+                  <span class="to">Gare de Floreffe</span>
+                </div>
+                <p class="shuttle-note">Départs réguliers toutes les 30 minutes</p>
+              </li>
             </ul>
           </li>
-        </ul>
+          </ul>
+          <div class="shuttle-footer">
+            <p>⚠️ Dernier départ garanti à l'heure indiquée</p>
+            <p>🔄 Service de navettes sous réserve de modifications</p>
+          </div>
+        </div>
+        
+        <!-- Contenu des trains -->
+        <div id="trainContent" class="tab-content">
+          <div class="shuttle-info">
+            <p class="shuttle-notice">Prochains départs depuis la gare de Floreffe</p>
+          </div>
+          <!-- Le contenu sera chargé dynamiquement -->
+        </div>
       </div>
     </div>
     <button class="shuttle-toggle" id="shuttleToggle" title="Voir les horaires de navettes">
@@ -54,13 +229,42 @@ document.addEventListener('DOMContentLoaded', function() {
   let offsetX, offsetY;
 
   // Gestionnaire d'événements pour le bouton de bascule
+  // Gestionnaire d'onglets
+  function setupTabs() {
+    const tabs = document.querySelectorAll('.shuttle-tab');
+    const contents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Désactiver tous les onglets
+        tabs.forEach(t => t.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+        
+        // Activer l'onglet cliqué
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(`${tabId}Content`).classList.add('active');
+        
+        // Charger les horaires des trains si nécessaire
+        if (tabId === 'train') {
+          loadTrainSchedule();
+        }
+      });
+    });
+  }
+  
   shuttleToggle.addEventListener('click', function(e) {
     e.stopPropagation();
+    const wasVisible = shuttleWidget.classList.contains('visible');
     shuttleWidget.classList.toggle('visible');
     shuttleToggle.classList.toggle('animate', false);
     
-    // Arrêter l'animation après la première ouverture
-    if (shuttleWidget.classList.contains('visible')) {
+    // Si le widget devient visible et que l'onglet train est actif, charger les horaires
+    if (!wasVisible && shuttleWidget.classList.contains('visible')) {
+      const activeTab = document.querySelector('.shuttle-tab.active');
+      if (activeTab && activeTab.getAttribute('data-tab') === 'train') {
+        loadTrainSchedule();
+      }
       localStorage.setItem('shuttleWidgetSeen', 'true');
     }
   });
@@ -70,6 +274,9 @@ document.addEventListener('DOMContentLoaded', function() {
     e.stopPropagation();
     shuttleWidget.classList.remove('visible');
   });
+  
+  // Initialiser les onglets
+  setupTabs();
 
   // Fermer le widget en cliquant en dehors
   document.addEventListener('click', function(e) {
