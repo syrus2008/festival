@@ -80,8 +80,7 @@ class RegisterForm(FlaskForm):
     from wtforms.validators import Regexp
     password = PasswordField('Mot de passe', validators=[
         DataRequired(),
-        Length(min=8, message='Le mot de passe doit contenir au moins 8 caractères.'),
-        Regexp(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\-=\\[\\]{};':\",.<>/?]).+$", message="Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un caractère spécial.")
+        Length(min=8, message='Le mot de passe doit contenir au moins 8 caractères.')
     ])
     password2 = PasswordField('Confirmer le mot de passe', validators=[DataRequired(), EqualTo('password')])
     is_admin = BooleanField('Créer un compte administrateur')
