@@ -17,9 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Fonction pour charger les horaires des trains
   async function loadTrainSchedule() {
-    const now = Math.floor(Date.now() / 1000);
-    const url = `https://api.irail.be/connections/?from=Floreffe&to=Brussels&format=json&results=5&timesel=departure&type_depart=departure&_=${now}`;
-    
     const trainContent = document.getElementById('trainContent');
     if (!trainContent) return;
     
@@ -32,20 +29,23 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     
     try {
-      const response = await fetch(`https://cors-anywhere.herokuapp.com/${url}`, {
-        headers: {
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      });
+      // Utiliser la route d'API côté serveur
+      const response = await fetch('/api/trains/departures');
       
-      if (!response.ok) throw new Error('Erreur réseau');
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
       
       const data = await response.json();
       
+      // Vérifier s'il y a une erreur dans la réponse
+      if (data.error) {
+        throw new Error(data.details || 'Erreur inconnue');
+      }
+      
       if (!data.connection || data.connection.length === 0) {
         trainContent.innerHTML = `
-          <div class="error-message">
+          <div class="info-message">
             Aucun train prévu pour le moment
           </div>
         `;
@@ -60,21 +60,41 @@ document.addEventListener('DOMContentLoaded', function() {
         const status = getTrainStatus(departure);
         const platform = departure.platform || '?';
         
+        // Formater l'heure de départ
+        const departureTime = new Date(departure.time * 1000).toLocaleTimeString('fr-BE', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+        
+        // Formater l'heure d'arrivée
+        const arrivalTime = new Date(arrival.time * 1000).toLocaleTimeString('fr-BE', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+        
+        // Calculer l'heure retardée si nécessaire
+        let delayedTimeHtml = '';
+        if (status.class === 'delayed') {
+          const delayedTime = new Date((parseInt(departure.time) + parseInt(departure.delay)) * 1000)
+            .toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
+          delayedTimeHtml = `<span class="delayed-time">${delayedTime}</span>`;
+        }
+        
         html += `
           <li class="train-time ${status.class}">
             <div class="train-time">
-              <span class="time">${departure.time}</span>
-              ${status.class === 'delayed' ? `<span class="delayed-time">${departure.time + parseInt(departure.delay * 60)}</span>` : ''}
+              <span class="time">${departureTime}</span>
+              ${delayedTimeHtml}
             </div>
             <div>
               <div class="train-route">
-                ${connection.direction?.name || 'Destination inconnue'}
+                ${connection.direction?.name || 'Bruxelles'}
                 <span class="train-status status-${status.class}">${status.text}</span>
               </div>
               <div class="train-platform">
                 <span>Voie ${platform}</span>
                 <span>•</span>
-                <span>Arrivée: ${arrival.time}</span>
+                <span>Arrivée: ${arrivalTime}</span>
               </div>
             </div>
           </li>
@@ -89,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
       trainContent.innerHTML = `
         <div class="error-message">
           Impossible de charger les horaires. Veuillez réessayer plus tard.
+          ${error.message ? `<br><small>${error.message}</small>` : ''}
         </div>
       `;
     }

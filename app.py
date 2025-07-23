@@ -120,6 +120,10 @@ def load_user(user_id):
 import views
 app.register_blueprint(views.bp)
 import admin
+
+# Register API blueprints
+from api.trains import bp as trains_bp
+app.register_blueprint(trains_bp)
 app.register_blueprint(admin.bp_admin)
 
 if __name__ == '__main__':
