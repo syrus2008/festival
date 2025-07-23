@@ -460,7 +460,7 @@
   .train-table td:before {
     content: attr(data-label) ": ";
     font-weight: 600;
-    color: #1976d2;
+    color: #1a252f;
     margin-right: 5px;
     font-size: 0.97em;
     display: inline-block;
