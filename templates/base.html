@@ -28,8 +28,13 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-lg sticky-top custom-navbar" style="border-radius:0 0 1.5rem 1.5rem;">
   <div class="container-fluid py-2">
     <a class="navbar-brand d-flex align-items-center gap-2 fs-3 fw-bold text-primary" href="{{ url_for('main.index') }}">
-      <span><i class="bi bi-search-heart"></i></span> Lost & Found
-    </a>
+  <span><i class="bi bi-search-heart"></i></span> Lost & Found
+</a>
+<div class="mx-auto d-flex align-items-center justify-content-center gap-1" style="position:absolute; left:0; right:0; margin:auto; width:fit-content; top:0.3rem;">
+  <i class="bi bi-train-front text-primary fs-2"></i>
+  <i class="bi bi-train-front text-success fs-2"></i>
+  <i class="bi bi-train-front text-danger fs-2"></i>
+</div>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -47,7 +52,8 @@
             </a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('main.list_items', status='lost') }}"><i class="bi bi-bag-x"></i> Objets perdus</a></li>
-              <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('main.list_items', status='found') }}"><i class="bi bi-bag-check"></i> Objets trouvés</a></li>
+<li><a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-bold" href="/trains" aria-label="Horaires trains/bus"><i class="bi bi-train-front"></i> Trains & Bus</a></li>
+<li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('main.list_items', status='found') }}"><i class="bi bi-bag-check"></i> Objets trouvés</a></li>
               <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('main.list_items', status='returned') }}"><i class="bi bi-arrow-repeat"></i> Objets rendus</a></li>
             </ul>
           </li>
